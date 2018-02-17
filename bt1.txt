@@ -1,0 +1,146 @@
+#include<iostream>
+#include<string>
+#include<stdlib.h>
+using namespace std; //tim kiem tren cay nhi phan 
+struct sinhvien {                 // kieu cau truc cua sinh vien 
+	string Hovaten; 
+	long MSSV ; 
+};
+typedef struct sinhvien SV ;
+struct node {      //cay nhi phan 
+	node *pleft;
+	node *pright; // luu con trai va con phai
+	SV data;      // du lieu di vao kieu SV    
+};
+typedef node* TREE; // kieu du lieu cay  
+// khoi tao cay rong 
+void KhoiTaocay(TREE &t) {
+	t = NULL; // cay rong 
+}
+void themphantu(TREE &t, SV &x) {
+	if (t == NULL) {
+		node* p = new node; // khoi tao 1 node de them vao cay 
+		p->data=x;
+		p->pleft = NULL;
+		p->pright = NULL;
+		t = p; // node p la node goc 
+	}
+	else // cay co phan tu roi
+	{   SV h=t->data;
+		if ( h.MSSV > x.MSSV) { themphantu(t->pleft, x); } // phan tu nho node goc them vao trai 
+		else if (h.MSSV < x.MSSV) { themphantu(t->pright, x); } //ngc lai
+
+	}
+}
+//tim kiem 
+node* searchBN(TREE t,long x){        // y la sv co MSSV can tim 
+    
+	if (t==NULL) return NULL; // neu cay rong 
+	else  if (x < t->data.MSSV) searchBN(t->pleft,x);
+	else if  (x > t->data.MSSV)  searchBN(t->pright,x);
+	else return t ;
+}
+
+// ham xuat cay theo NLR 
+void LNR(TREE t) {
+	if (t != NULL) {
+		LNR(t->pleft);
+		cout <<"Ho va ten:"<< t->data.Hovaten<<" MSSV:"<< t->data.MSSV <<endl ;// xuat du lieu trong node  ;
+		LNR(t->pright);
+	}
+}
+
+void findminr(TREE &p,TREE &q){ //tim node trai nhat cua cay con phai va thay the 
+  if (q->pleft != NULL) findminr(p,q->pleft);
+  else {
+  	p->data = q->data ;
+  	p=q;
+  	q=q->pright;
+  }
+}
+//Xoa 1 nut -1 sinh vien 
+node* del(TREE &t,long x){          //x la node can xoa 
+	if( t==NULL) return NULL;
+	else if(t->data.MSSV > x) del(t->pleft,x);
+	else if(t->data.MSSV < x) del(t->pright,x);
+	else // t->data.MSSV = x 
+	{
+		node *p = t;
+		if (t->pleft == NULL) t=t->pright; // node chi cay con phai 
+		else if (t->pright == NULL) t=t->pleft ; // node chi co cay con trai
+		else // node co ca 2 cay con phai va cay con trai 
+		{ 
+			 findminr(p,t->pright);  
+		}
+		delete p ;
+	} 
+	return t ;
+} 
+// Them 1 cay con- them vao  1 lop nho cac sv
+//Xoa 1 cay con- xoa 1 lop nho cac sv
+void menu(TREE &t) {                             //menu cua chuong trinh de bai 
+	while (true) {
+		system("cls");
+		cout <<"\n\n \t\t Menu BST:";
+		cout <<"\n1.Nhap du lieu (them 1 sinh vien): "; 
+		cout <<"\n2.Xuat du lieu cay LNR(in ra danh danh sach sinh vien) ";
+		cout<<"\n3.Tim kiem phan tu trong cay(Tim kiem theo MSSV): ";
+		cout<<"\n4.Xoa 1 node (xoa 1 sv) ";
+		cout<<"\n5.Nhap them 1 node ";
+		cout<<"\n6.Them cay con (them 1 nhom sv vào lop)";
+		cout<<"\n7.Xoa cay con (xoa 1 nhom cay con khoi lop)";
+		cout<< "\n ------------------------------------------------------------ ";
+		int k;
+		cout << "\nNhap lua chon cua ban: ";
+		cin >> k;
+		switch (k){
+		
+		case 1:  {        //Nhap du lieu (them 1 nut)
+			SV x;
+			fflush(stdin);// xoa bo nho dem 
+			cout << "\n Ho va ten sinh vien: ";
+			getline(cin,x.Hovaten);
+			cout<<"\nMSSV: ";
+			cin >> x.MSSV;
+		    themphantu(t,x); 
+			break;
+		}
+		case 2: {                                    //duyet cay theo LNR
+			cout << "\nDuyet cay theo LNR: \n";
+			LNR(t);
+			system("pause");
+			break;
+		}
+		case 3: {                                    //tim kiem   
+		    long y;
+			cout << "\nnhap MSSV can tim kiem: ";
+			cin >> y; 
+			node *p= searchBN(t,y);
+			if (p == NULL) cout<<"khong ton tai sinh vien can tim ";
+			else cout<<"Ton tai sinh vien can tim ";
+			system("pause");
+			break;
+		}
+		case 4: {                                     //xoa node 
+		    long x;
+			cout << "\nNhap MSSV can xoa: ";
+			cin >> x; 
+		    node* q=del(t,x);
+		    if (q != NULL) cout<<"\nXoa thanh cong sinh vien!";
+		    cout<<"\nIn lai danh sach sinh vien: ";
+		    LNR(t);
+			system("pause");
+			break;
+		}
+		default: {
+		cout<<"Lua chon khong hop le !";
+		system("pause");}
+	}
+}}
+int main() {
+	TREE t;
+	KhoiTaocay(t);
+	menu(t);
+	system("pause");
+	return 0;
+}
